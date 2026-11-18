@@ -1,0 +1,15 @@
+# The held-out world: run once, after every design choice was made on the dev world (docs/heldout.md).
+# Same marketplace rules, different buyers, sellers and luck, and a somewhat messier catalogue.
+base = "world.toml"
+seed = 977
+
+[catalog]
+missing_attr = 0.2
+wrong_colour = 0.07
+
+[searches]
+typo = 0.09
+nickname = 0.3
+
+[users]
+english_share = 0.2

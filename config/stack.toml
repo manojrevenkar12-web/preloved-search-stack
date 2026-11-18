@@ -1,0 +1,33 @@
+# Settings of the search stack, its training and its experiments. The simulated world never reads this file.
+page_size = 20
+rrf_k = 60
+recency_days = 14.0         # a new listing's boost halves over about ten days
+
+[twotower]
+seed = 3
+dim = 32
+epochs = 4
+batch_size = 256
+learning_rate = 0.01
+temperature = 0.07
+purchase_weight = 3.0
+
+[ranker]
+seed = 5
+hidden = 32
+epochs = 3
+learning_rate = 0.003
+weight_decay = 0.0001
+
+[timeline]
+train_days = 18             # history days the models learn from; the rest of the history is the offline test set
+
+[experiment]
+ab_replications = 8         # independent user splits of the A/B test
+aa_splits = 1000             # A/A splits of the control traffic: how often a null result looks significant
+alpha = 0.05
+
+[gate]                      # what the design in production must show before it ships
+min_purchase_lift = 0.0     # the lower end of the A/B interval must clear this in every split
+max_zero_result_rate = 0.02
+max_p95_ms = 50.0

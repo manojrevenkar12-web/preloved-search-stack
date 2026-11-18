@@ -1,0 +1,52 @@
+# The simulated marketplace and its buyers. The search stack never reads this file.
+seed = 41
+
+[catalog]
+initial = 14000
+new_per_day = 900
+max_age_days = 60
+model_share = 0.7          # listings of a brand's iconic line
+missing_attr = 0.15        # a structured attribute the seller left empty
+wrong_colour = 0.05        # a colour picked wrong in the form
+appeal_sigma = 0.35        # photos and description: hidden from the search stack
+sold_elsewhere = 0.012     # per day: sold through another channel or withdrawn
+
+[users]
+count = 6000
+english_share = 0.15       # buyers who search in English whatever their market
+budget_median = 1100.0
+brand_concentration = 0.4  # lower: each buyer cares about fewer brands
+
+[users.markets]
+FR = 24
+DE = 18
+IT = 14
+ES = 10
+UK = 16
+US = 12
+NL = 6
+
+[searches]
+per_user_day = 0.22
+second_search = 0.35
+brand_share = 0.72
+model_share = 0.45
+colour_share = 0.45
+material_share = 0.25
+style_share = 0.12
+size_share = 0.3
+nickname = 0.25            # of brand mentions: a nickname the catalogue vocabulary does not list
+typo = 0.07                # per word longer than four letters
+filler = 0.2
+
+[behaviour]
+page_size = 20
+exam_decay = 0.9           # examination at position k is 1 / (1 + k) ** decay
+attract = 0.9              # click probability given examination grows with utility
+buy_base = 0.07
+buy_sens = 1.6
+
+[timeline]
+history_days = 21          # logged under today's search (lexical), with randomised traffic
+eval_days = 5              # served by the designs being compared
+randomized_share = 0.05    # searches whose top 10 is shuffled, to estimate position bias

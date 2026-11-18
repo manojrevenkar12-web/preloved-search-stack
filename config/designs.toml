@@ -1,0 +1,84 @@
+# The designs compared on the same buyers. Each is a configuration of the stages in preloved/search/stack.py.
+
+[designs.lexical]            # today: BM25 over the seller's title, newest first among equals
+understand = false
+index = "title"
+
+[designs.understood]         # + query understanding: slots as filters and as canonical words in the index
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+
+[designs.hybrid]             # + two-tower vectors, fused by reciprocal rank
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+
+[designs.personalised]       # + the personalised ranker, trained unbiased for position (the design proposed)
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+ranker = "ips"
+
+[designs.biased_ranker]      # ablation: the ranker trained on raw clicks, without correcting for position
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+ranker = "naive"
+
+[designs.id_tower]           # ablation: an embedding per item, the usual recommender default
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "ids"
+fusion = "rrf"
+ranker = "ips"
+
+[designs.not_personal]       # ablation: the ranker without the buyer's own history
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+ranker = "anonymous"
+
+# more variants for the offline-to-online study: small changes of the kind a team ships every week
+[variants.no_recency]
+index = "title"
+recency = 0.0
+
+[variants.no_fuzzy_filters]
+understand = true
+index = "structured"
+
+[variants.vectors_heavy]
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+vector_weight = 3.0
+
+[variants.shallow_rerank]
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+vectors = "content"
+fusion = "rrf"
+ranker = "ips"
+depth = 30
+
+[variants.no_relax]
+understand = true
+index = "structured"
+hard = ["brand", "category"]
+relax = false
+vectors = "content"
+fusion = "rrf"
+ranker = "ips"

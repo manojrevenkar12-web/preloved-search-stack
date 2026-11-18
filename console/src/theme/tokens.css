@@ -1,0 +1,49 @@
+/* Design tokens. Every colour, size and duration in the console comes from here.
+   The look borrows from what a buyer touches: tissue paper, a garnet authentication tag, Didone price tags. */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+  --font-tag: "Bodoni Moda", "Didot", Georgia, serif;
+
+  --color-tissue: #f1f2f6;       /* page: cool tissue paper */
+  --color-card: #ffffff;
+  --color-ink: #1f1a2e;          /* aubergine ink */
+  --color-muted: #5d5873;
+  --color-rule: #dcdbe6;
+  --color-garnet: #8c1d40;       /* the authentication tag: design B, primary actions */
+  --color-garnet-soft: #f3e3e9;
+  --color-slate: #3e5c8a;        /* design A */
+  --color-slate-soft: #e3e9f3;
+  --color-gain: #2f6f4f;
+  --color-loss: #a3392b;
+  --color-gain-soft: #e2efe7;
+  --color-loss-soft: #f5e2df;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.75rem;
+
+  --radius-tag: 0.125rem;
+  --radius-field: 0.5rem;
+  --width-page: 78rem;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-tissue);
+  font-feature-settings: "tnum" 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-garnet);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
