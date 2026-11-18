@@ -74,7 +74,7 @@ jobs:
           from airflow.models import DagBag
           bag = DagBag("dags", include_examples=False)
           assert not bag.import_errors, bag.import_errors
-          dag = bag.get_dag("preloved_search_retrain")
+          dag = bag.dags["preloved_search_retrain"]  # parsed only; no metadata database
           assert [t.task_id for t in dag.topological_sort()] == [
               "land_event_log", "train_models", "evaluate_and_gate", "gate", "publish_models"]
           print("dag ok:", len(dag.tasks), "tasks")
