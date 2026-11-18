@@ -64,19 +64,19 @@ The dev world (seed 41) shaped every decision; the held-out world (seed 977, a m
 <!-- dashboard:start -->
 ### Headline
 
-| | dev |
-|---|---:|
-| purchases per search, `personalised` vs `lexical`, full rollout | +35.7% |
-| revenue per search, same comparison | +17.1% |
-| relevant listings in the top 10 (of 10) | 7.9 → 9.9 |
-| searches with no results | 0.4% → 0.0% |
-| p95 latency per search (one CPU core, Python) | 4.6 ms |
-| best offline predictor of the online lift (Kendall τ) | judged_dcg10 (0.67) |
-| log-based offline metrics that scored every new design below today's search | 4 of 4 |
-| interleaving vs A/B: searches needed for the same verdict | 39× fewer |
-| A/A tests called significant at 5% | 5.5% |
-| A/B intervals containing the rollout lift (8 splits) | 7 of 8 |
-| ships through the gate | yes |
+| | dev | held-out |
+|---|---:|---:|
+| purchases per search, `personalised` vs `lexical`, full rollout | +35.7% | +36.3% |
+| revenue per search, same comparison | +17.1% | +29.0% |
+| relevant listings in the top 10 (of 10) | 7.9 → 9.9 | 7.8 → 9.8 |
+| searches with no results | 0.4% → 0.0% | 0.6% → 0.0% |
+| p95 latency per search (one CPU core, Python) | 4.6 ms | 4.5 ms |
+| best offline predictor of the online lift (Kendall τ) | judged_dcg10 (0.67) | judged_dcg10 (0.66) |
+| log-based offline metrics that scored every new design below today's search | 4 of 4 | 4 of 4 |
+| interleaving vs A/B: searches needed for the same verdict | 39× fewer | 42× fewer |
+| A/A tests called significant at 5% | 5.5% | 5.3% |
+| A/B intervals containing the rollout lift (8 splits) | 7 of 8 | 7 of 8 |
+| ships through the gate | yes | yes |
 
 ### Every design, rolled out to every buyer (dev world, days 21–25, 8,916 searches each)
 
@@ -94,6 +94,23 @@ The dev world (seed 41) shaped every decision; the held-out world (seed 977, a m
 | `no_fuzzy_filters` | variant: slots as words only, no filters | 0.0585 (+10.1%) | +5.1% | 8.71 | 1.3 |
 | `no_recency` | variant: no recency boost | 0.0544 (+2.3%) | +3.2% | 7.94 | 0.7 |
 | `lexical` | today: BM25 over the seller's title | 0.0532 (—) | — | 7.90 | 0.7 |
+
+### Every design, rolled out to every buyer (held-out world, days 21–25, 8,879 searches each)
+
+| design | what changes | purchases / search | revenue / search | relevant in top 10 | p95 ms |
+|---|---|---:|---:|---:|---:|
+| `not_personal` | ablation: ranker without buyer history | 0.0737 (+38.0%) | +28.0% | 9.85 | 4.7 |
+| **personalised** | + personalised ranker, IPS (proposed) | 0.0728 (+36.3%) | +29.0% | 9.85 | 4.5 |
+| `no_relax` | variant: never relax filters | 0.0728 (+36.3%) | +29.0% | 9.85 | 4.3 |
+| `biased_ranker` | ablation: ranker without IPS | 0.0716 (+34.2%) | +28.8% | 9.84 | 4.8 |
+| `shallow_rerank` | variant: rerank top 30 only | 0.0711 (+33.1%) | +25.2% | 9.84 | 4.0 |
+| `hybrid` | + two-tower vectors, RRF | 0.0659 (+23.4%) | +23.3% | 9.49 | 3.9 |
+| `id_tower` | ablation: item-ID tower | 0.0651 (+21.9%) | +23.9% | 9.54 | 4.4 |
+| `understood` | + query understanding, slot filters | 0.0631 (+18.1%) | +10.7% | 9.30 | 2.5 |
+| `vectors_heavy` | variant: vectors weighted 3x | 0.0609 (+14.1%) | +13.5% | 9.55 | 4.0 |
+| `no_fuzzy_filters` | variant: slots as words only, no filters | 0.0600 (+12.4%) | +5.8% | 8.70 | 1.4 |
+| `no_recency` | variant: no recency boost | 0.0559 (+4.6%) | +11.6% | 7.87 | 0.7 |
+| `lexical` | today: BM25 over the seller's title | 0.0534 (—) | — | 7.84 | 0.7 |
 
 ### Which offline metric predicts the online result (dev world, 11 designs and variants, offline on days 18–20)
 
@@ -122,52 +139,90 @@ The rollout winner: `personalised`. Offline values per design:
 | `shallow_rerank` | 0.834 | 0.720 | 0.558 | 0.461 | 0.794 |
 | `no_relax` | 0.831 | 0.757 | 0.558 | 0.463 | 0.827 |
 
+### Which offline metric predicts the online result (held-out world, 11 designs and variants, offline on days 18–20)
+
+| offline metric | Kendall τ with the rollout lift | p | right direction vs today | picks |
+|---|---:|---:|---:|---|
+| judged relevance of the top 10 (rater labels) | 0.66 | 0.005 | 100% | `biased_ranker` |
+| bought item in top 20, against today's tables | 0.56 | 0.019 | 0% | `biased_ranker` |
+| bought item in top 20, point in time | 0.31 | 0.183 | 0% | `biased_ranker` |
+| click nDCG on the logged searches | 0.29 | 0.212 | 0% | `understood` |
+| click nDCG, clicks weighted for position | 0.29 | 0.212 | 0% | `understood` |
+
+The rollout winner: `not_personal`. Offline values per design:
+
+| design | judged_dcg10 | recall_today | ndcg_clicks | ndcg_ips | recall_pit |
+|---|---:|---:|---:|---:|---:|
+| `lexical` | 0.680 | 0.868 | 0.672 | 0.549 | 0.993 |
+| `understood` | 0.815 | 0.750 | 0.570 | 0.476 | 0.844 |
+| `hybrid` | 0.811 | 0.667 | 0.517 | 0.430 | 0.792 |
+| `personalised` | 0.832 | 0.757 | 0.549 | 0.457 | 0.823 |
+| `biased_ranker` | 0.837 | 0.774 | 0.568 | 0.473 | 0.854 |
+| `id_tower` | 0.723 | 0.281 | 0.182 | 0.164 | 0.319 |
+| `not_personal` | 0.833 | 0.760 | 0.551 | 0.460 | 0.837 |
+| `no_recency` | 0.692 | 0.604 | 0.433 | 0.365 | 0.722 |
+| `no_fuzzy_filters` | 0.774 | 0.740 | 0.565 | 0.470 | 0.844 |
+| `vectors_heavy` | 0.796 | 0.653 | 0.497 | 0.412 | 0.750 |
+| `shallow_rerank` | 0.832 | 0.708 | 0.545 | 0.454 | 0.795 |
+| `no_relax` | 0.832 | 0.757 | 0.549 | 0.457 | 0.819 |
+
 ### Experiments on the proposed design
 
-| | dev |
-|---|---:|
-| rollout lift (the truth an A/B test estimates) | +35.7% |
-| A/B lift, mean over buyer splits (± spread) | +41.0% ± 10.1 |
-| A/B splits significant at 5% (CUPED) | 8 of 8 |
-| variance removed by CUPED (pre-period purchases) | 0.0% |
-| interference: largest change in an arm's purchases vs the same searches in a rollout | 1.3% |
-| A/A false positives, plain / CUPED | 5.5% / 5.5% of 1000 |
-| interleaving: share of decided searches won by the proposed design | 68.6% |
-| searches for an 80%-power verdict, interleaving / A/B | 107 / 4,182 |
+| | dev | held-out |
+|---|---:|---:|
+| rollout lift (the truth an A/B test estimates) | +35.7% | +36.3% |
+| A/B lift, mean over buyer splits (± spread) | +41.0% ± 10.1 | +35.0% ± 10.4 |
+| A/B splits significant at 5% (CUPED) | 8 of 8 | 8 of 8 |
+| variance removed by CUPED (pre-period purchases) | 0.0% | -0.1% |
+| interference: largest change in an arm's purchases vs the same searches in a rollout | 1.3% | 2.5% |
+| A/A false positives, plain / CUPED | 5.5% / 5.5% of 1000 | 5.3% / 5.3% of 1000 |
+| interleaving: share of decided searches won by the proposed design | 68.6% | 66.7% |
+| searches for an 80%-power verdict, interleaving / A/B | 107 / 4,182 | 128 / 5,384 |
 
 ### What the models learned
 
 - Position bias (dev), positions 1–5, estimated from the 5% shuffled searches: 1.00, 0.53, 0.37, 0.28, 0.23; the world's true curve: 1.00, 0.54, 0.37, 0.29, 0.23.
+- Position bias (held-out), positions 1–5, estimated from the 5% shuffled searches: 1.00, 0.54, 0.37, 0.29, 0.23; the world's true curve: 1.00, 0.54, 0.37, 0.29, 0.23.
 - Nicknames no dictionary in the stack contains (dev): share of the content tower's top 50 that is the intended brand: “bv” → Bottega Veneta 100%, “loubs” → Christian Louboutin 98%, “slp” → Saint Laurent 100%.
+- Nicknames no dictionary in the stack contains (held-out): share of the content tower's top 50 that is the intended brand: “bv” → Bottega Veneta 100%, “loubs” → Christian Louboutin 98%, “slp” → Saint Laurent 100%.
 
 ### Gate (config/stack.toml)
 
-| check | dev |
-|---|---|
-| ab lower bound | pass |
-| zero results | pass |
-| p95 ms | pass |
+| check | dev | held-out |
+|---|---|---|
+| ab lower bound | pass | pass |
+| zero results | pass | pass |
+| p95 ms | pass | pass |
 
 _Generated by `scripts/readme.py` from `reports/*.json`; evaluation ran in 8 min on two cores._
 <!-- dashboard:end -->
 
 ## What the numbers say
 
-- **Understanding the query is most of the win; personalisation adds a little on top.** Slots as filters and
-  canonical tokens take purchases per search up by about a sixth; the ranker roughly doubles that. Removing the
-  buyer's own history from the ranker costs a few points; removing the position correction costs a few more. An
-  item-ID tower gives up most of the vector gain, because most items sell before they have clicks.
-- **Every log-based offline metric preferred today's search.** The logged pages are today's ranking, so any metric
-  built from them rewards reproducing it. Among the new designs they still order things somewhat; only judged
-  relevance (rater labels, here from the simulation's truth) got the direction right for every design. In practice
-  that argues for a small rated query set, and for interleaving before an A/B test.
-- **Interleaving reaches a verdict on far fewer searches than an A/B test.** Each buyer compares both rankings on the
-  same query, so buyer-to-buyer variance cancels.
-- **CUPED did almost nothing here, and the report says so.** Buyers in this world have no lasting propensity to buy
-  that last month's purchases reveal. On a real marketplace with repeat buyers the same code should remove much more
-  variance; it should be measured before an experiment is sized on it.
-- **Interference was small.** With roughly 15,000 items for sale and about 90 purchases a day, one arm of an A/B test
-  rarely buys the item the other arm wanted; the report measures it directly, search by search.
+- **Understanding the query and re-ranking carry the gain, in both worlds.** Slots as filters and canonical tokens
+  add 17–18% purchases per search; the ranker takes the total to about 36%. Training the ranker without the position
+  correction costs 2–3 points in both worlds.
+- **Personalisation is not established.** The buyer's own history added 4 points on dev and lost 1.7 on the held-out
+  world, where the ranker without it was the rollout winner. Both are inside the noise of one rollout. The proposed
+  design still clears the gate, and the next experiment is the personalised ranker against the anonymous one.
+- **Vectors pay off as the catalogue gets messier.** On dev the two towers added no purchases over query
+  understanding; on the held-out world, with a fifth of attributes missing and more nicknames, they added 5 points.
+  The content tower learned "bv", "loubs" and "slp" from clicks alone. An item-ID tower lost most of the revenue gain
+  on dev (+2% against +17%), because most items sell before they collect clicks.
+- **Every log-based offline metric preferred today's search, in both worlds.** The logged pages are today's ranking,
+  so any metric built from them rewards reproducing it. Among the new designs they still order things somewhat; only
+  judged relevance (rater labels, here from the simulation's truth) got the direction right for every design. In
+  practice that argues for a small rated query set, and for interleaving before an A/B test.
+- **Interleaving reaches a verdict on about 40× fewer searches than an A/B test.** Each buyer compares both rankings
+  on the same query, so buyer-to-buyer variance cancels.
+- **CUPED did nothing here, and the report says so.** Buyers in this world have no lasting propensity to buy that
+  last month's purchases reveal. On a real marketplace with repeat buyers the same code should remove much more
+  variance; measure it before sizing an experiment on it.
+- **Interference was small.** With about 22,000 items for sale and about 90 purchases a day, one arm of an A/B test
+  rarely buys the item the other arm wanted; measured search by search, no arm moved more than 2.5%.
+- **A known weak spot.** The tower reads "bv" as Bottega Veneta, but for "bv bag" BM25's matches on "bag" outrank it
+  in the fusion, so the page shows other brands (recorded in the console demo). A fix is to let a confident learned
+  brand read propose a soft slot; it would have to be tested on dev and a new held-out world.
 
 ## Run it
 
@@ -184,7 +239,9 @@ Airflow (`dags/search_retrain.py`) runs the same scripts nightly and publishes m
 `infra/terraform` describes the AWS side (S3 for model artifacts, OpenSearch for listings, ECR for the service image);
 CI validates it but never applies it.
 
-![console](docs/console.png)
+![console: the same query under today's search and the proposed design](docs/console.png)
+
+![console: offline metrics against the rollout](docs/study.png)
 
 ## Limits
 

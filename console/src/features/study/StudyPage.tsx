@@ -3,6 +3,11 @@ import type { Report, StudyRow } from "../../core/types";
 import { Empty } from "../../shared/States";
 import { pct, share } from "../../shared/format";
 
+const SHORT: Record<string, string> = {
+  judged_dcg10: "Judged top 10", recall_today: "Bought, today's tables", ndcg_clicks: "Click nDCG",
+  ndcg_ips: "Click nDCG, IPS", recall_pit: "Bought, point in time",
+};
+
 export const METRICS: Record<string, string> = {
   judged_dcg10: "Judged relevance of the top 10 (rater labels)",
   recall_today: "Bought item in top 20, today's tables",
@@ -38,7 +43,7 @@ export function StudyPage({ report }: { report: Report | null }) {
   return (
     <div className="flex flex-col gap-8">
       <p className="max-w-3xl font-[family-name:var(--font-tag)] text-xl leading-snug">
-        Rolled out to every buyer, the {report.proposed} design sold {pct(p.purchase_lift)} more per search than
+        Rolled out to every buyer, the {report.proposed} design sold {share(p.purchase_lift)} more per search than
         today's {report.control} search. Interleaving reached the same verdict on {Math.round(report.efficiency.ratio)}×
         fewer searches than an A/B test.
       </p>
@@ -58,18 +63,18 @@ export function StudyPage({ report }: { report: Report | null }) {
                 <th className="px-3 py-2 font-medium">Design</th>
                 <th className="px-3 py-2 text-right font-medium">Purchases, rollout</th>
                 <th className="px-3 py-2 text-right font-medium">Revenue, rollout</th>
-                {rows.map(([n]) => <th key={n} className="px-3 py-2 text-right font-medium">{METRICS[n]?.split(",")[0] ?? n}</th>)}
+                {rows.map(([n]) => <th key={n} className="px-3 py-2 text-right font-medium">{SHORT[n] ?? n}</th>)}
                 <th className="px-3 py-2 text-right font-medium">p95</th>
               </tr>
             </thead>
             <tbody>
               {names.map((n) => (
                 <tr key={n} className={`border-b border-rule last:border-0 ${n === report.proposed ? "bg-garnet-soft" : ""}`}>
-                  <th scope="row" className="px-3 py-2 text-left font-semibold">{n.replace(/_/g, " ")}</th>
+                  <th scope="row" className="whitespace-nowrap px-3 py-2 text-left font-semibold">{n.replace(/_/g, " ")}</th>
                   <Cell v={report.online[n].purchase_lift} />
                   <Cell v={report.online[n].gmv_lift} />
                   {rows.map(([m]) => <Cell key={m} v={report.offline[n][m] / report.offline[report.control][m] - 1} />)}
-                  <td className="px-3 py-2 text-right">{report.online[n].p95_ms.toFixed(1)} ms</td>
+                  <td className="whitespace-nowrap px-3 py-2 text-right">{report.online[n].p95_ms.toFixed(1)} ms</td>
                 </tr>
               ))}
             </tbody>

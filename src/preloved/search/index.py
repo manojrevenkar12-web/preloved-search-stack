@@ -74,7 +74,8 @@ def opensearch_mapping() -> dict:
     keyword = {"type": "keyword"}
     return {
         "settings": {
-            "analysis": {"analyzer": {"listing": {"tokenizer": "standard", "filter": ["lowercase", "asciifolding"]}}}
+            "index": {"knn": True},
+            "analysis": {"analyzer": {"listing": {"tokenizer": "standard", "filter": ["lowercase", "asciifolding"]}}},
         },
         "mappings": {
             "properties": {

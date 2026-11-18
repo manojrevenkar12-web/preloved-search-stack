@@ -1,7 +1,7 @@
 export type Listing = {
   item_id: number; title: string; price: number; market: string; listed_day: number;
   brand: string | null; category: string | null; model: string | null; material: string | null;
-  colour: string | null; size: string | null; condition: number | null;
+  colour: string | null; size: string | null; condition: string | null;
 };
 
 export type SearchResponse = {
